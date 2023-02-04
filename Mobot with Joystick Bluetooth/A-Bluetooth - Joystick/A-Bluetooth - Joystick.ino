@@ -50,11 +50,24 @@ void joystick(int X, int Y){
   X_Axis = analogRead(X_Joy);
   Y_Axis = analogRead(Y_Joy);
   SW_state = digitalRead(SW);
-  x_Ax = map(X_Axis, 0, 1023, -512, 512);
-  y_Ax = map(Y_Axis, 0, 1023, -512, 512);
+   x_Ax = map(X_Axis, 0, 1023, -512, 512);
+   y_Ax = map(Y_Axis, 0, 1023, -512, 512);
   X_Data = convertsignals(x_Ax);
   Y_Data = convertsignals(y_Ax);
   
+}
+
+void joystickdata(){
+  joystick(X_Axis, Y_Axis);
+  BTSerial.print(X_Data);
+  BTSerial.print(" = X|Y= ");
+  BTSerial.println(Y_Data);
+  //This will output the actual data of the joystick.
+  BTSerial.print(x_Ax);
+  BTSerial.print(" =X|Y= ") ;
+  BTSerial.println(y_Ax);
+  BTSerial.println("-------------");
+
 }
 void loop() {
   if (BTSerial.available()) { //IF BLUETOOTH IS CONNECTED TO A DEVICE/ RUN THE CODE. ELSE NONE.
@@ -65,16 +78,16 @@ void loop() {
       digitalWrite(ledpin, LOW);
     }
   }
+
   joystick(X_Axis, Y_Axis);
-  BTSerial.print(X_Data);
-  BTSerial.print(" = X|Y= ");
-  BTSerial.println(Y_Data);
-  BTSerial.println("-------------");
+  joystickdata();
+
 
   if (Serial.available()) { //IF SERIAL IS AVAILABLE(WHICH IS ON)
     char c = Serial.read(); //THIS WILL READ WHAT WAS THE DATA THAT WAS SENT FROM DEVICE
     BTSerial.write(c); //THIS WILL OUTPUT CHAR
   }
+
   delay(500);
   //NOTE: SERIAL.AVAILABLE AND BTSERIAL.AVAILABLE RUNS AT THE SAME TIME
 }
