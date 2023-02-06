@@ -7,32 +7,27 @@
 //        OPEN YOUR BLUETOOTH TERMINAL APP. FIND THE OPTION WHERE YOU CAN SEE YOUR BLUETOOTH PAIRED DEVICES AND FIND THE HC-05. IT SHOULD BE "CONNECTED" IF YOU CLICK IT.
 //        NOW YOUR HC-05 IS CONNECTED
 // KEANU P. BERCHES
-// PSWD: KEANU
 
-//I havent solve yet how to send Bluetooth Int data from HC-05 -> Android
 #include <SoftwareSerial.h>
 SoftwareSerial BTSerial(10,11);  // For Software Serial, the Pin 10 will become RX(Connect HC-05 TX Here) and Pin 11 will become TX(Connect HC-05 RX here)
-#define ledpin 13              //built-in LED in UNO
+//JOYSTICK 
 int X_Joy = A0;
 int Y_Joy = A1;
 int x_Ax, y_Ax;
 int SW = 2;
-
 int X_Axis = 0;
 int Y_Axis = 0;
 int SW_state = 0;
 int X_Data;
 int Y_Data;
-#define ledpin 13  
 
 void setup() {
-  BTSerial.begin(9600);
+  BTSerial.begin(9600); //For Bluetooth
   Serial.begin(9600); 
-  pinMode(X_Joy, INPUT);
-  pinMode(Y_Joy, INPUT);
+  pinMode(X_Joy, INPUT); //Joystick X Axis
+  pinMode(Y_Joy, INPUT); //Joystick Y Axis
   pinMode(SW, INPUT_PULLUP); 
-  pinMode(ledpin, OUTPUT);    //LED
-  digitalWrite(ledpin, LOW);  //L is OFF  
+
 }
 
 int convertsignals(int num){
@@ -50,11 +45,21 @@ void joystick(int X, int Y){
   X_Axis = analogRead(X_Joy);
   Y_Axis = analogRead(Y_Joy);
   SW_state = digitalRead(SW);
-   x_Ax = map(X_Axis, 0, 1023, -512, 512);
-   y_Ax = map(Y_Axis, 0, 1023, -512, 512);
+   x_Ax = map(X_Axis, 0, 1023, -512, 512) - 13;
+   y_Ax = map(Y_Axis, 0, 1023, -512, 512) + 40;
   X_Data = convertsignals(x_Ax);
   Y_Data = convertsignals(y_Ax);
-  
+/* 
+    |   |
+02  |12 | 22
+----|---|----
+    |   |
+01  |11 | 21
+----|---|-----
+00  |10 | 20
+    |   |    
+
+*/
 }
 
 void joystickdata(){
@@ -66,17 +71,18 @@ void joystickdata(){
   BTSerial.print(x_Ax);
   BTSerial.print(" =X|Y= ") ;
   BTSerial.println(y_Ax);
+ // string dataString;
+ // dataString = x_Ax + ","+ y_Ax;
   BTSerial.println("-------------");
+
 
 }
 void loop() {
-  if (BTSerial.available()) { //IF BLUETOOTH IS CONNECTED TO A DEVICE/ RUN THE CODE. ELSE NONE.
-    char x = BTSerial.read(); //READ THE DATA THAT COULD BE RECEIVED FROM THE DEVICE. ONLY CHAR. ONLY 1 CHAR WILL BE RECEIVED PER LOOP IF YOU SENT A STRING
-    if(x=='1'){
-      digitalWrite(ledpin, HIGH);
-    }else if(x=='0'){
-      digitalWrite(ledpin, LOW);
-    }
+  //We will need this BTSerial.write('G') so we can activate/run the ACTIVATER line. so we can receive some kind of signal
+ // BTSerial.write('G'); //RESPONDER
+  if (BTSerial.available()) { //time to receive COMMANDS. since the other code sent Joystick Data in BTSerial line, we will access BTSerial line and see what char/variable is in that server/line
+    char receive = BTSerial.read(); //READ THE DATA THAT COULD BE RECEIVED FROM THE DEVICE. ONLY CHAR. ONLY 1 CHAR WILL BE RECEIVED PER LOOP IF YOU SENT A STRING
+
   }
 
   joystick(X_Axis, Y_Axis);
